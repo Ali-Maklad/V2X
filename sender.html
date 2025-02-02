@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>mqtt kda w kda</title>
+    <style>
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background-color: #f9f9f9;
+      }
+
+      .button-container {
+        text-align: center;
+      }
+
+      button {
+        margin: 10px;
+        padding: 15px 30px;
+        font-size: 18px;
+        font-weight: bold;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        color: white;
+      }
+
+      #high-speed {
+        background-color: #007bff;
+      }
+
+      #high-speed:hover {
+        background-color: #0056b3;
+      }
+      #start {
+        background-color: #07bd4c;
+      }
+
+      #start:hover {
+        background-color: #004814;
+      }
+
+      #accident {
+        background-color: #dc3545;
+      }
+
+      #accident:hover {
+        background-color: #a71d2a;
+      }
+    </style>
+    <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  </head>
+  <body>
+    <div class="button-container">
+      <button id="start" onclick="emitLocation()">Start</button>
+      <button id="high-speed" onclick="emitHighSpeed()">High Speed</button>
+      <button id="accident" onclick="emitAccident()">Accident</button>
+    </div>
+
+    <script>
+      // Connect to the Socket.IO server
+      const socket = io("http://localhost:3000"); // Replace with your server's URL and port
+
+      function emitLocation() {
+        let location = { lat: 30.441392, lon: 31.342281 };
+
+        setInterval(() => {
+          location.lat += 0.001;
+          location.lon += 0.001;
+          socket.emit("myLocation", location);
+        }, 500);
+        // Emit 'highSpeed' event
+      }
+
+      function emitHighSpeed() {
+        const message = "You are driving too fast! Slow down!";
+        socket.emit("highSpeed", message);
+      }
+      //30.441392, 31.342281
+      // Emit 'accident' event
+      function emitAccident() {
+        const accidentLocation = { lat: 30.481382, lon: 31.352271 };
+        const message = "Watchout! there's an accident nearby";
+        socket.emit("accident", message, accidentLocation);
+      }
+
+      // Handle successful connection
+    </script>
+  </body>
+</html>
