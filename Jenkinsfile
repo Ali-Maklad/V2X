@@ -1,6 +1,6 @@
 
 pipeline {
-    agent { label 'web_sec' }
+ agent { label 'Jenkins-Agent' }
     tools {
         jdk 'java17'
         maven 'maven3'
