@@ -1,42 +1,44 @@
-
 pipeline {
- agent { label 'Jenkins' }
+    agent { label 'Jenkins' }
+
     tools {
-        jdk 'java17'
+        jdk 'java17'     
         nodejs 'nodejs-14'
     }
+
     environment {
-	    APP_NAME = "register-app-pipeline"
-            RELEASE = "1.0.0"
-            DOCKER_USER = "mahmoud1122ashraf"
-            DOCKER_PASS = 'Mm01066210395'
-            IMAGE_NAME = "${DOCKER_USER}" + "/" + "${APP_NAME}"
-            IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
-	    JENKINS_API_TOKEN = credentials("JENKINS_API_TOKEN")
+        APP_NAME = "register-app-pipeline"
+        RELEASE = "1.0.0"
+        DOCKER_USER = "mahmoud1122ashraf"
+        DOCKER_PASS = 'Mm01066210395'
+        IMAGE_NAME = "${DOCKER_USER}/${APP_NAME}"
+        IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
+        JENKINS_API_TOKEN = credentials("JENKINS_API_TOKEN")
     }
-    stages{
-        stage("Cleanup Workspace"){
-                steps {
-                cleanWs()
-                }
+
+    stages {
+        stage("Cleanup Workspace") {
+            steps {
+                cleanWs() 
+            }
         }
 
-        stage("Checkout from SCM"){
-                steps {
-                    git branch: 'main', credentialsId: 'web_credentials_github', url: 'https://github.com/Ali-Maklad/V2X.git'
-                }
+        stage("Checkout from SCM") {
+            steps {
+                git branch: 'main', credentialsId: 'web_credentials_github', url: 'https://github.com/Ali-Maklad/V2X.git'
+            }
         }
 
-    stage("Install Dependencies") {
+        stage("Install Dependencies") {
             steps {
                 script {
+                   
                     sh 'npm install'
                 }
             }
         }
 
-
-       stage("Build Application") {
+        stage("Build Application") {
             steps {
                 script {
                     
@@ -48,65 +50,69 @@ pipeline {
         stage("Test Application") {
             steps {
                 script {
-                   
+                    
                     sh 'npm test'  
                 }
             }
-       
-       stage("SonarQube Analysis"){
-           steps {
-	           script {
-		        withSonarQubeEnv(credentialsId: 'jenkins-token-sonarqube') { 
-                        sh "mvn sonar:sonar"
-		        }
-	           }	
-           }
-       }
+        }
 
-       stage("Quality Gate"){
-           steps {
-               script {
-                    waitForQualityGate abortPipeline: false, credentialsId: 'jenkins-sonarqube-token'
-                }	
+        stage("SonarQube Analysis") {
+            steps {
+                script {
+                    withSonarQubeEnv(credentialsId: 'jenkins-token-sonarqube') {
+                        sh 'npm run sonar' 
+                    }
+                }
             }
+        }
 
+        stage("Quality Gate") {
+            steps {
+                script {
+                    waitForQualityGate abortPipeline: false, credentialsId: 'jenkins-sonarqube-token'
+                }
+            }
         }
 
         stage("Build & Push Docker Image") {
             steps {
                 script {
-                    docker.withRegistry('',DOCKER_PASS) {
-                        docker_image = docker.build "${IMAGE_NAME}"
+                    docker.withRegistry('', DOCKER_PASS) {
+                        docker_image = docker.build("${IMAGE_NAME}")
                     }
 
-                    docker.withRegistry('',DOCKER_PASS) {
+                    docker.withRegistry('', DOCKER_PASS) {
                         docker_image.push("${IMAGE_TAG}")
                         docker_image.push('latest')
                     }
                 }
             }
+        }
 
-       }
+        stage("Trivy Scan") {
+            steps {
+                script {
+                    sh '''
+                    docker run -v /var/run/docker.sock:/var/run/docker.sock \
+                    aquasec/trivy image ${IMAGE_NAME}:${IMAGE_TAG} --no-progress \
+                    --scanners vuln --exit-code 0 --severity HIGH,CRITICAL --format table
+                    '''
+                }
+            }
+        }
 
-       stage("Trivy Scan") {
-           steps {
-               script {
-	            sh ('docker run -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image ashfaque9x/register-app-pipeline:latest --no-progress --scanners vuln  --exit-code 0 --severity HIGH,CRITICAL --format table')
-               }
-           }
-       }
-
-       stage ('Cleanup Artifacts') {
-           steps {
-               script {
+        stage("Cleanup Artifacts") {
+            steps {
+                script {
                     sh "docker rmi ${IMAGE_NAME}:${IMAGE_TAG}"
                     sh "docker rmi ${IMAGE_NAME}:latest"
-               }
-          }
-       }
+                }
+            }
+        }
 
-      post {
+    post {
         failure {
+            
             slackSend(
                 channel: '#v2x_',
                 color: 'danger',
@@ -119,6 +125,7 @@ pipeline {
             )
         }
         success {
+        
             slackSend(
                 channel: '#v2x_',
                 color: 'good',
