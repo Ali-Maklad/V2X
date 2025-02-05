@@ -2,7 +2,8 @@
 FROM node:14
 WORKDIR /usr/src/app
 COPY package*.json ./
-RUN npm cache clean --force && npm install
+RUN  npm install
+RUN  npm cache clean --force
 COPY . .
 EXPOSE 80
 CMD ["npm", "start"]
