@@ -2,8 +2,8 @@
 pipeline {
     agent { label 'web_sec' }
     tools {
-        jdk 'java21'
-        maven 'maven-3.9.9'
+        jdk 'java17'
+        maven 'maven3'
     }
     environment {
 	    APP_NAME = "register-app-pipeline"
