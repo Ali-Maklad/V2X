@@ -2,8 +2,8 @@ pipeline {
     agent { label 'Jenkins' }
 
     tools {
-        jdk 'java17'        
-        nodejs 'nodejs-14'   
+        jdk 'java17'
+        nodejs 'nodejs-14'
     }
 
     environment {
@@ -11,7 +11,7 @@ pipeline {
         RELEASE = "1.0.0"
         DOCKER_USER = "mahmoud1122ashraf"
         DOCKER_PASS = 'Mm01066210395'
-        IMAGE_NAME = "${DOCKER_USER}/${APP_NAME}"  
+        IMAGE_NAME = "${DOCKER_USER}/${APP_NAME}"
         IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
         JENKINS_API_TOKEN = credentials("JENKINS_API_TOKEN")
     }
@@ -19,7 +19,7 @@ pipeline {
     stages {
         stage("Cleanup Workspace") {
             steps {
-                cleanWs()  
+                cleanWs()
             }
         }
 
@@ -40,7 +40,7 @@ pipeline {
         stage("Build Application") {
             steps {
                 script {
-                    sh 'npm run build' 
+                    sh 'npm run build'
                 }
             }
         }
@@ -48,7 +48,7 @@ pipeline {
         stage("Test Application") {
             steps {
                 script {
-                    sh 'npm test'  
+                    sh 'npm test'
                 }
             }
         }
@@ -57,7 +57,7 @@ pipeline {
             steps {
                 script {
                     withSonarQubeEnv(credentialsId: 'jenkins-token-sonarqube') {
-                        sh 'npm run sonar'  
+                        sh 'npm run sonar'
                     }
                 }
             }
@@ -106,6 +106,7 @@ pipeline {
                 }
             }
         }
+    }
 
     post {
         failure {
@@ -134,3 +135,4 @@ pipeline {
         }
     }
 }
+
