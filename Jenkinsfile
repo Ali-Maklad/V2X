@@ -10,7 +10,7 @@ pipeline {
         APP_NAME = "register-app-pipeline"
         RELEASE = "1.0.0"
         DOCKER_USER = "mahmoud1122ashraf"
-        DOCKER_PASS = 'Mm01066210395'
+        DOCKER_CREDENTIALS = credentials("dockerhub-credentials")
         IMAGE_NAME = "${DOCKER_USER}/${APP_NAME}"
         IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
     }
