@@ -104,7 +104,7 @@ pipeline {
     post {
         failure {
             slackSend(
-                channel: '#your-slack-channel',
+                channel: '#v2x_',
                 color: 'danger',
                 message: "Build failed: ${currentBuild.fullDisplayName}"
             )
@@ -116,7 +116,7 @@ pipeline {
         }
         success {
             slackSend(
-                channel: '#your-slack-channel',
+                channel: '#v2x_',
                 color: 'good',
                 message: "Build successful: ${currentBuild.fullDisplayName}"
             )
