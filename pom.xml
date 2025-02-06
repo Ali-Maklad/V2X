@@ -18,6 +18,7 @@
 
   <modules>
     <module>node_modules</module>
+    <module>node_modules/pom.xml</module>
   </modules>
 
   <distributionManagement>
