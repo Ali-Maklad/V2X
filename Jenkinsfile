@@ -8,7 +8,7 @@ pipeline {
     }
 
     environment {
-        APP_NAME = "register-app-pipeline"
+        APP_NAME = "V2X"
         RELEASE = "1.0.0"
         DOCKER_USER = "mahmoud1122ashraf"
         DOCKER_CREDENTIALS = credentials("dockerhub-credentials")
@@ -36,61 +36,50 @@ pipeline {
                 }
             }
         }
-
-        stage("Build Application") {
-            steps {
-                script {
-                    sh 'npm run build'
-                }
-            }
-        }
-
-        stage("Test Application") {
-            steps {
-                script {
-                    sh 'npm test'
-                }
-            }
-        }
-
+        
         stage("SonarQube Analysis") {
             steps {
                 script {
                     withSonarQubeEnv(credentialsId: 'jenkins-token-sonarqube') {
-                        sh 'npm run sonar'
+                        sh 'mvn clean verify sonar:sonar -Dsonar.projectKey=emqx-container -Dsonar.host.url=http://172.178.140.193:9000'
                     }
                 }
             }
         }
-
-        stage("Quality Gate") {
+        
+        stage("Run Tests") {
             steps {
                 script {
-                    waitForQualityGate abortPipeline: false, credentialsId: 'jenkins-sonarqube-token'
+                    sh 'npm test'  
                 }
             }
         }
-
-        stage("Build & Push Docker Image") {
+        stage("Build Docker Image") {
             steps {
                 script {
-                    docker.withRegistry('', DOCKER_PASS) {
-                        docker_image = docker.build("${IMAGE_NAME}")
-                    }
-
-                    docker.withRegistry('', DOCKER_PASS) {
-                        docker_image.push("${IMAGE_TAG}")
+                    docker.withRegistry('https://index.docker.io/v1/', 'dockerhub-credentials') {
+                        def docker_image = docker.build("${IMAGE_NAME}:${IMAGE_TAG}", "-f Dockerfile .")
+                        docker_image.push()
                         docker_image.push('latest')
                     }
                 }
             }
         }
-
+        tage("Run v2x-app") {
+            steps {
+                script {
+                    sh """
+                    docker run -d --name ${APP_NAME}-container -p 3000:3000 ${IMAGE_NAME}:${IMAGE_TAG}
+                    """
+                }
+            }
+        }
+        
         stage("Trivy Scan") {
             steps {
                 script {
                     sh '''
-                    docker run -v /var/run/docker.sock:/var/run/docker.sock \
+                    docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
                     aquasec/trivy image ${IMAGE_NAME}:${IMAGE_TAG} --no-progress \
                     --scanners vuln --exit-code 0 --severity HIGH,CRITICAL --format table
                     '''
@@ -98,16 +87,15 @@ pipeline {
             }
         }
 
-        stage("Cleanup Artifacts") {
+        stage("Cleanup Docker Artifacts") {
             steps {
                 script {
-                    sh "docker rmi ${IMAGE_NAME}:${IMAGE_TAG}"
-                    sh "docker rmi ${IMAGE_NAME}:latest"
+                    sh "docker rmi ${IMAGE_NAME}:${IMAGE_TAG} || true"
+                    sh "docker rmi ${IMAGE_NAME}:latest || true"
                 }
             }
         }
     }
-
     post {
         failure {
             slackSend(
