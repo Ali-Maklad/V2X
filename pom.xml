@@ -9,7 +9,7 @@
     <packaging>jar</packaging>
 
     <properties>
-        <node.version>18.0.0</node.version> <!-- Specify your Node.js version -->
+        <node.version>v18.0.0</node.version> <!-- Specify your Node.js version -->
         <npm.version>9.0.0</npm.version> <!-- Specify your npm version -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
