@@ -8,7 +8,7 @@ pipeline {
     }
 
     environment {
-        APP_NAME = "V2X"
+        APP_NAME = "v2x"
         RELEASE = "1.0.0"
         DOCKER_USER = "mahmoud1122ashraf"
         DOCKER_CREDENTIALS = credentials("dockerhub-credentials")
