@@ -19,6 +19,11 @@
         <frontend-maven-plugin.version>1.12.1</frontend-maven-plugin.version>
     </properties>
 
+    <modules>
+        <module>server</module>
+        <module>webapp</module>
+    </modules>
+
     <build>
         <plugins>
             <plugin>
