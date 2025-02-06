@@ -4,14 +4,17 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.example</groupId>
-    <artifactId>newhabd</artifactId>
+    <artifactId>html-nodejs-webapp</artifactId>
     <version>1.0.0</version>
-    <packaging>jar</packaging>
+    <packaging>war</packaging>
+
+    <name>HTML and Node.js Web App</name>
+    <description>A web app with HTML frontend and Node.js backend integrated with Maven</description>
 
     <properties>
-        <node.version>v18.17.1</node.version> <!-- Correct format with 'v' -->
-        <npm.version>9.6.7</npm.version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <node.version>v18.18.2</node.version>  
+        <npm.version>8.6.0</npm.version>      
+        <frontend-maven-plugin.version>1.12.1</frontend-maven-plugin.version>
     </properties>
 
     <build>
@@ -19,21 +22,21 @@
             <plugin>
                 <groupId>com.github.eirslett</groupId>
                 <artifactId>frontend-maven-plugin</artifactId>
-                <version>1.12.1</version>
-                <configuration>
-                    <nodeVersion>${node.version}</nodeVersion>
-                    <npmVersion>${npm.version}</npmVersion>
-                    <workingDirectory>src/main/frontend</workingDirectory>
-                </configuration>
+                <version>${frontend-maven-plugin.version}</version>
                 <executions>
                     <execution>
-                        <id>install-node-and-npm</id>
+                        <id>install node and npm</id>
                         <goals>
                             <goal>install-node-and-npm</goal>
                         </goals>
+                        <configuration>
+                            <nodeVersion>${node.version}</nodeVersion>
+                            <npmVersion>${npm.version}</npmVersion>
+                        </configuration>
                     </execution>
+
                     <execution>
-                        <id>npm-install</id>
+                        <id>npm install</id>
                         <goals>
                             <goal>npm</goal>
                         </goals>
@@ -41,17 +44,42 @@
                             <arguments>install</arguments>
                         </configuration>
                     </execution>
+
                     <execution>
-                        <id>npm-build</id>
+                        <id>npm build</id>
                         <goals>
                             <goal>npm</goal>
                         </goals>
                         <configuration>
-                            <arguments>run build</arguments>
+                            <arguments>run build</arguments>  
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>npm start</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>start</arguments>  
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>3.3.1</version>
+                <configuration>
+                    <webResources>
+                        <resource>
+                            <directory>src/main/webapp</directory> 
+                        </resource>
+                    </webResources>
+                </configuration>
+            </plugin>
+
         </plugins>
     </build>
 </project>
