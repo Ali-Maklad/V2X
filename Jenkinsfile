@@ -41,7 +41,7 @@ pipeline {
         stage("SonarQube Analysis") {
             steps {
                 script {
-                     withSonarQubeEnv(credentialsId: 'jenkins-token-sonarqube') {
+                    withSonarQubeEnv(credentialsId: 'jenkins-token-sonarqube') {
                         sh 'mvn clean verify sonar:sonar -Dsonar.projectKey=emqx-container -Dsonar.host.url=http://172.178.140.193:9000'
                     }
                 }
@@ -124,4 +124,3 @@ pipeline {
         }
     }
 }
-
