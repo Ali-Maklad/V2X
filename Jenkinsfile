@@ -65,7 +65,7 @@ pipeline {
                 }
             }
         }
-        tage("Run v2x-app") {
+        stage("Run v2x-app") {
             steps {
                 script {
                     sh """
