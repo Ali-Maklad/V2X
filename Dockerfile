@@ -1,9 +1,7 @@
-# Use official Node.js image from Docker Hub
-FROM node:14
-WORKDIR /usr/src/app
+FROM node:18-alpine
+WORKDIR /app
 COPY package*.json ./
-RUN  npm install
-RUN  npm cache clean --force
+RUN npm install
 COPY . .
-EXPOSE 80
+EXPOSE 3000
 CMD ["npm", "start"]
