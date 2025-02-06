@@ -1,9 +1,10 @@
 pipeline {
-    agent { label 'Jenkins' }
+    agent { label 'web' }
 
     tools {
         jdk 'java17'
         nodejs 'nodejs-18'
+        maven 'maven3'
     }
 
     environment {
