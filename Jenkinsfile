@@ -1,12 +1,12 @@
 pipeline {
     agent { label 'web' }
-
+    
     tools {
         jdk 'java17'
         nodejs 'nodejs-18'
         maven 'maven3'
     }
-
+    
     environment {
         APP_NAME = "v2x"
         RELEASE = "1.0.0"
@@ -15,20 +15,19 @@ pipeline {
         IMAGE_NAME = "${DOCKER_USER}/${APP_NAME}"
         IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
     }
-
+    
     stages {
         stage("Cleanup Workspace") {
             steps {
                 cleanWs()
             }
         }
-
+        
         stage("Checkout from SCM") {
             steps {
                 git branch: 'main', credentialsId: 'web_credentials_github', url: 'https://github.com/Ali-Maklad/V2X.git'
             }
         }
-
         stage("Install Dependencies") {
             steps {
                 script {
@@ -92,7 +91,6 @@ pipeline {
                 }
             }
         }
-
         stage("Cleanup Docker Artifacts") {
             steps {
                 script {
