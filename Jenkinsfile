@@ -63,7 +63,7 @@ pipeline {
             steps {
                 script {
                     sh """
-                    docker run -d --name ${APP_NAME}-container -p 3000:3000 ${IMAGE_NAME}:${IMAGE_TAG}
+                    docker run -d --name ${APP_NAME}-container -p 3000 ${IMAGE_NAME}:${IMAGE_TAG}
                     """
                 }
             }
