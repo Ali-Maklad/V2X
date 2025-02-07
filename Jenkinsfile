@@ -68,6 +68,18 @@ pipeline {
                 }
             }
         }
+        stage('Remove Old Container') {
+            steps {
+                script {
+                    sh '''
+                    if [ "$(docker ps -aq -f name=$CONTAINER_NAME)" ]; then
+                        docker stop $CONTAINER_NAME || true
+                        docker rm $CONTAINER_NAME || true
+                    fi
+                    '''
+                }
+            }
+        
         
         stage("Trivy Scan") {
             steps {
