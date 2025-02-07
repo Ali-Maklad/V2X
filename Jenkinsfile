@@ -1,12 +1,12 @@
 pipeline {
     agent { label 'web' }
-    
+
     tools {
         jdk 'java17'
         nodejs 'nodejs-18'
         maven 'maven3'
     }
-    
+
     environment {
         APP_NAME = "v2x"
         RELEASE = "1.0.0"
@@ -14,20 +14,22 @@ pipeline {
         DOCKER_CREDENTIALS = credentials("dockerhub-credentials")
         IMAGE_NAME = "${DOCKER_USER}/${APP_NAME}"
         IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
+        CONTAINER_NAME = "${APP_NAME}-container"  
     }
-    
+
     stages {
         stage("Cleanup Workspace") {
             steps {
                 cleanWs()
             }
         }
-        
+
         stage("Checkout from SCM") {
             steps {
                 git branch: 'main', credentialsId: 'web_credentials_github', url: 'https://github.com/Ali-Maklad/V2X.git'
             }
         }
+
         stage("Install Dependencies") {
             steps {
                 script {
@@ -36,7 +38,7 @@ pipeline {
                 }
             }
         }
-        
+
         stage("SonarQube Analysis") {
             steps {
                 script {
@@ -46,7 +48,7 @@ pipeline {
                 }
             }
         }
-        
+
         stage("Build Docker Image") {
             steps {
                 script {
@@ -58,16 +60,8 @@ pipeline {
                 }
             }
         }
-        stage("Run v2x-app") {
-            steps {
-                script {
-                    sh """
-                    docker run -d --name ${APP_NAME}-container -p 3000:3000 ${IMAGE_NAME}:${IMAGE_TAG}
-                    """
-                }
-            }
-        }
-        stage('Remove Old Container') {
+
+        stage("Remove Old Container") {  
             steps {
                 script {
                     sh '''
@@ -78,8 +72,18 @@ pipeline {
                     '''
                 }
             }
-        
-        
+        }
+
+        stage("Run v2x-app") {
+            steps {
+                script {
+                    sh """
+                    docker run -d --name ${CONTAINER_NAME} -p 3000:3000 ${IMAGE_NAME}:${IMAGE_TAG}
+                    """
+                }
+            }
+        }
+
         stage("Trivy Scan") {
             steps {
                 script {
@@ -91,6 +95,7 @@ pipeline {
                 }
             }
         }
+
         stage("Cleanup Docker Artifacts") {
             steps {
                 script {
@@ -100,6 +105,7 @@ pipeline {
             }
         }
     }
+
     post {
         failure {
             slackSend(
@@ -125,6 +131,5 @@ pipeline {
                 recipientProviders: [[$class: 'DevelopersRecipientProvider']]
             )
         }
-    }
     }
 }
