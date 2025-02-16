@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/style.css">
     <title>V2V</title>
     <link
       rel="stylesheet"
@@ -10,70 +11,7 @@
     />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
-    <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-
-      body {
-        font-family: Arial, sans-serif;
-        display: flex;
-        height: 100vh;
-      }
-
-      #map {
-        flex: 2;
-        height: 100%;
-      }
-
-      #chat {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        border-left: 1px solid #ccc;
-      }
-
-      #messages {
-        flex: 1;
-        overflow-y: auto;
-        padding: 10px;
-        background-color: #f9f9f9;
-      }
-
-      #messages div {
-        margin-bottom: 10px;
-      }
-
-      #input-container {
-        display: flex;
-        padding: 10px;
-        border-top: 1px solid #ccc;
-        background-color: #fff;
-      }
-
-      #input-container input {
-        flex: 1;
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-      }
-
-      #input-container button {
-        margin-left: 10px;
-        padding: 10px 20px;
-        border: none;
-        background-color: #007bff;
-        color: white;
-        border-radius: 4px;
-        cursor: pointer;
-      }
-
-      #input-container button:hover {
-        background-color: #0056b3;
-      }
-    </style>
+    
   </head>
   <body>
     <!-- Map Section -->
@@ -87,124 +25,6 @@
         <button onclick="sendMessage()">Send</button>
       </div>
     </div>
-
-    <script>
-      const socket = io("http://localhost:3000"); // Replace with your server URL
-
-      // Add a blue dot at the static location
-      let map = L.map("map").setView([30.441392, 31.342281], 12); // استخدام الموقع الأولي
-
-      // إضافة طبقات OpenStreetMap
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution:
-          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-      }).addTo(map);
-
-      // تعريف marker ثابت لتمثيل موقع المستخدم
-      let userMarker = L.circleMarker([30.441392, 31.342281], {
-        radius: 8,
-        color: "blue",
-        fillColor: "#007bff",
-        fillOpacity: 0.8,
-      })
-        .addTo(map)
-        .bindPopup(`<strong>انا اهو</strong>`)
-        .openPopup();
-
-      // Connect to the Socket.IO server
-
-      // Chat functionality
-      const messagesContainer = document.getElementById("messages");
-      const chatInput = document.getElementById("chat-input");
-
-      function sendMessage() {
-        const message = chatInput.value.trim();
-        if (message) {
-          // Emit the message to the server
-          socket.emit("chat message", message);
-          chatInput.value = "";
-        }
-      }
-
-      // Listen for incoming chat messages
-      socket.on("chat message", function (msg) {
-        const messageDiv = document.createElement("div");
-        messageDiv.textContent = msg;
-        messagesContainer.appendChild(messageDiv);
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-      });
-
-      //   socket.on("sendMsgToAllUsers", function (msg) {
-      //     var item = document.createElement("li");
-      //     item.textContent = msg;
-      //     messages.appendChild(item);
-      //     window.scrollTo(0, document.body.scrollHeight);
-      //   });
-
-      chatInput.addEventListener("keypress", function (event) {
-        if (event.key === "Enter") {
-          sendMessage();
-        }
-      });
-
-      // تلقي الموقع المحدث من السيرفر
-      socket.on("sendMyLocation", (location) => {
-        const { lat, lon } = location;
-
-        // تحديث الموقع على الخريطة
-        userMarker.setLatLng([lat, lon]);
-
-        // تحديث Popup على marker
-      
-        console.log (location);
-      });
-
-      // استماع لرسائل الحوادث القادمة من الخادم
-      // Listen for accident alerts from the server
-      socket.on("sendAccidentAlert", function (msg, accidentLocation) {
-        // Display the message in the chat
-        const messageDiv = document.createElement("div");
-        messageDiv.innerHTML = '<strong><span style="color: red;">SYSTEM:</span></strong> ' + msg;
-        messagesContainer.appendChild(messageDiv);
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-
-        // If accidentLocation is provided, add a red dot on the map
-        if (accidentLocation) {
-          const { lat, lon } = accidentLocation;
-
-          // Add a red dot at the accident location
-          L.circleMarker([lat, lon], {
-            radius: 8,
-            color: "red",
-            fillColor: "#ff0000", // red fill color
-            fillOpacity: 0.8,
-          })
-            .addTo(map)
-            .bindPopup(`<strong>Accident Location</strong>`)
-            .openPopup();
-        }
-      });
-      
-
-      socket.on("sendHighSpeedAlert", function (msg) {
-        const messageDiv = document.createElement("div");
-        messageDiv.innerHTML ='<strong><span style="color: red;">SYSTEM:</span></strong> '+ msg;
-        messagesContainer.appendChild(messageDiv);
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-      });
-      socket.on ("connection" , (userId) => {
-        const messageDiv = document.createElement("div");
-        messageDiv.textContent = `User ${userId} has connected!`;
-        messagesContainer.appendChild(messageDiv);
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-      } )
-
-      socket.on("sendMsgToAllUsers", function (msg, userId) {
-        const messageDiv = document.createElement("div");
-        messageDiv.textContent = `User ${userId}: ${msg}`;
-        messagesContainer.appendChild(messageDiv);
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-      });
-    </script>
+    <script src="script.js"></script>
   </body>
 </html>
