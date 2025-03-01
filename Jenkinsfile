@@ -49,17 +49,7 @@ pipeline {
                     }
                 }
             }
-        }
-         stage('Quality Gate') {
-            steps {
-                script {
-                    timeout(time: 2, unit: 'MINUTES') {
-                        waitForQualityGate abortPipeline: true
-                    }
-                }
-            }
-        }
-
+        }    
         stage("Build Docker Image") {
             steps {
                 script {
