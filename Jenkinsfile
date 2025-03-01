@@ -54,7 +54,7 @@ pipeline {
                 
                     
                    script {
-                    withSonarQubeEnv('Sonar-Server') {
+                    withSonarQubeEnv('sonarqube-server') {
                         sh "echo 'start sonarqube analysis'"
                          withCredentials([string(credentialsId: 'jenkins-token-sonarqube', variable: 'sonarLogin')]) {
                         sh "${SCANNER_HOME}/bin/sonar-scanner \
