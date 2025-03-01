@@ -12,7 +12,7 @@ pipeline {
         RELEASE = "1.0.0"
         DOCKER_USER = "mahmoud1122ashraf"
         SONARQUBE_URL = 'http://172.178.140.193:9000'
-        SCANNER_HOME = tool 'sonarqube-server' 
+        SCANNER_HOME = tool 'sonarqube-scanner' 
         SONAR_PROJECT_KEY = 'APP'
         SONAR_PROJECT_NAME = 'APP'
         SONAR_PROJECT_VERSION = '1.0'
