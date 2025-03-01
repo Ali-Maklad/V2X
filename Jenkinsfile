@@ -24,7 +24,7 @@ pipeline {
             }
         }
 
-        stage("Checkout from SCM") {
+        stage("Git Checkout") {
             steps {
                 git branch: 'main', credentialsId: 'web_credentials_github', url: 'https://github.com/Ali-Maklad/V2X.git'
             }
@@ -43,7 +43,7 @@ pipeline {
             steps {
                 script {
                     withSonarQubeEnv(credentialsId: 'jenkins-token-sonarqube') {
-                        sh 'mvn clean verify sonar:sonar -Dsonar.projectKey=emqx-container -Dsonar.host.url=http://172.178.140.193:9000'
+                        sh 'mvn clean verify sonar:sonar -Dsonar.projectKey=emqx-container -Dsonar.exclusions=**/node_modules  -Dsonar.host.url=http://172.178.140.193:9000'
                     }
                 }
             }
@@ -74,7 +74,7 @@ pipeline {
             }
         }
 
-        stage("Run v2x-app") {
+        stage("Run APP") {
             steps {
                 script {
                     sh """
