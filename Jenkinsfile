@@ -11,6 +11,8 @@ pipeline {
         APP_NAME = "v2x"
         RELEASE = "1.0.0"
         DOCKER_USER = "mahmoud1122ashraf"
+        SONARQUBE_URL = 'http://172.178.140.193:9000'
+        SONARQUBE_TOKEN = credentials('jenkins-token-sonarqube') 
         DOCKER_CREDENTIALS = credentials("dockerhub-credentials")
         IMAGE_NAME = "${DOCKER_USER}/${APP_NAME}"
         IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
@@ -43,7 +45,16 @@ pipeline {
             steps {
                 script {
                     withSonarQubeEnv(credentialsId: 'jenkins-token-sonarqube') {
-                        sh 'mvn clean verify sonar:sonar -Dsonar.projectKey=emqx-container -Dsonar.exclusions=**/node_modules  -Dsonar.host.url=http://172.178.140.193:9000'
+                        sh 'mvn clean verify sonar:sonar -Dsonar.projectKey=emqx-container -Dsonar.exclusions=**/node_modules  -Dsonar.sources=.  -Dsonar.host.url=http://172.178.140.193:9000'
+                    }
+                }
+            }
+        }
+         stage('Quality Gate') {
+            steps {
+                script {
+                    timeout(time: 1, unit: 'MINUTES') {
+                        waitForQualityGate abortPipeline: true
                     }
                 }
             }
