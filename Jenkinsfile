@@ -12,10 +12,6 @@ pipeline {
         RELEASE = "1.0.0"
         DOCKER_USER = "mahmoud1122ashraf"
         SONARQUBE_URL = 'http://172.178.140.193:9000'
-        SCANNER_HOME = tool 'sonarqube-scanner' 
-        SONAR_PROJECT_KEY = 'APP'
-        SONAR_PROJECT_NAME = 'APP'
-        SONAR_PROJECT_VERSION = '1.0'
         SONARQUBE_TOKEN = credentials('jenkins-token-sonarqube') 
         DOCKER_CREDENTIALS = credentials("dockerhub-credentials")
         IMAGE_NAME = "${DOCKER_USER}/${APP_NAME}"
@@ -44,34 +40,16 @@ pipeline {
                 }
             }
         }
- stage('Sonar-Qube-Analysis'){
-            when {
-               expression { STATIC_ANALYSIS_TYPE == '0'}
-            }
 
-            steps{
-
-                
-                    
-                   script {
-                    withSonarQubeEnv('sonarqube-server') {
-                        sh "echo 'start sonarqube analysis'"
-                         withCredentials([string(credentialsId: 'jenkins-token-sonarqube', variable: 'sonarLogin')]) {
-                        sh "${SCANNER_HOME}/bin/sonar-scanner \
-                            -Dsonar.projectKey=${SONAR_PROJECT_KEY}\
-                            -Dsonar.projectName=${SONAR_PROJECT_NAME}\
-                            -Dsonar.projectVersion=${SONAR_PROJECT_VERSION}\
-                            -Dsonar.token=${SONAR_TOKEN}\
-                            -Dsonar.exclusions=**/node_modules"
-                        }
-
-                        sh " echo 'end static analysis'"
+        stage("SonarQube Analysis") {
+            steps {
+                script {
+                    withSonarQubeEnv(credentialsId: 'jenkins-token-sonarqube') {
+                        sh 'mvn clean verify sonar:sonar -Dsonar.projectKey=emqx-container -Dsonar.exclusions=**/node_modules  -Dsonar.sources=.  -Dsonar.host.url=http://172.178.140.193:9000'
                     }
                 }
-                   
-                }
-                
             }
+        }    
         stage("Build Docker Image") {
             steps {
                 script {
