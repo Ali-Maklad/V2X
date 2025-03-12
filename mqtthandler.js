@@ -1,56 +1,43 @@
 const mqtt = require("mqtt");
-const { io } = require("socket.io-client");
-
 const connectUrl = "mqtt://broker.emqx.io";
 const clientId = "mqttx_1f8654bb";
+const { io } = require("socket.io-client");
 const socket = io("https://v2x-production.up.railway.app/");
 
-let client = null; // تخزين الاتصال الحالي
+function mqttHandler () {
 
-function mqttHandler() {
-  if (client) {
-    console.log("MQTT already connected. Skipping new connection.");
-    return;
-  }
-
-  client = mqtt.connect(connectUrl, { clientId });
+  const client = mqtt.connect(connectUrl, { clientId });
+  const testMessage = "Is Socket.io working?";
+  socket.emit("Test", testMessage);
 
   client.on("connect", () => {
     console.log("MQTT Connected!");
-
-    const topics = ["Location", "Accident", "HighSpeed"];
-    topics.forEach(topic => {
-      client.subscribe(topic, (err) => {
-        if (!err) {
-          console.log(`Subscribed to topic: ${topic}`);
-        }
-      });
+    client.subscribe("Location", (err) => {
+      console.log(`Subscribe to topic Location`);
+    });
+    client.subscribe("Accident", (err) => {
+      console.log(`Subscribe to topic Accident`);
+    });
+    client.subscribe("HighSpeed", (err) => {
+      console.log(`Subscribe to topic HighSpeed`);
     });
   });
 
   client.on("message", (topic, message) => {
     console.log(`Received message on topic [${topic}]: ${message.toString()}`);
-    
-    const parsedMessage = JSON.parse(message.toString());
     if (topic === "Location") {
-      socket.emit("myLocation", parsedMessage);
+      const gpsData = JSON.parse(message.toString());
+     socket.emit("myLocation", gpsData);
     } else if (topic === "Accident") {
-      console.log("Accident Alert:", parsedMessage);
-      socket.emit("accident", parsedMessage);
+      const accidentLocation = JSON.parse(message.toString());
+      console.log("Accident Alert:", accidentLocation);
+      socket.emit("accident", accidentLocation);
     } else if (topic === "HighSpeed") {
-      console.log("HighSpeed Alert:", parsedMessage);
-      socket.emit("highSpeed", parsedMessage);
+      const highSpeedAlert = JSON.parse(message.toString());
+      console.log("HighSpeed Alert:", highSpeedAlert);
+      socket.emit("highSpeed", highSpeedAlert);
     }
   });
-
-  client.on("error", (err) => {
-    console.error("MQTT Error:", err);
-  });
-
-  client.on("close", () => {
-    console.log("MQTT Connection closed!");
-    client = null; // إعادة تعيين client للسماح بإعادة الاتصال إذا لزم الأمر
-  });
-}
+};
 
 module.exports = mqttHandler;
