@@ -4,22 +4,27 @@ const clientId = "mqttx_1f8654bb";
 const { io } = require("socket.io-client");
 const socket = io("https://v2x-production.up.railway.app/");
 
-function mqttHandler () {
+let isConnected = false;
+
+function mqttHandler() {
+  if (isConnected) {
+    console.log("MQTT is already connected.");
+    return;
+  }
 
   const client = mqtt.connect(connectUrl, { clientId });
-  const testMessage = "Is Socket.io working?";
-  socket.emit("Test", testMessage);
 
   client.on("connect", () => {
+    isConnected = true;
     console.log("MQTT Connected!");
     client.subscribe("Location", (err) => {
-      console.log(`Subscribe to topic Location`);
+      if (!err) console.log("Subscribed to topic Location");
     });
     client.subscribe("Accident", (err) => {
-      console.log(`Subscribe to topic Accident`);
+      if (!err) console.log("Subscribed to topic Accident");
     });
     client.subscribe("HighSpeed", (err) => {
-      console.log(`Subscribe to topic HighSpeed`);
+      if (!err) console.log("Subscribed to topic HighSpeed");
     });
   });
 
@@ -27,7 +32,7 @@ function mqttHandler () {
     console.log(`Received message on topic [${topic}]: ${message.toString()}`);
     if (topic === "Location") {
       const gpsData = JSON.parse(message.toString());
-     socket.emit("myLocation", gpsData);
+      socket.emit("myLocation", gpsData);
     } else if (topic === "Accident") {
       const accidentLocation = JSON.parse(message.toString());
       console.log("Accident Alert:", accidentLocation);
@@ -38,6 +43,15 @@ function mqttHandler () {
       socket.emit("highSpeed", highSpeedAlert);
     }
   });
-};
+
+  client.on("close", () => {
+    isConnected = false;
+    console.log("MQTT Disconnected.");
+  });
+
+  client.on("error", (err) => {
+    console.error("MQTT Error:", err);
+  });
+}
 
 module.exports = mqttHandler;
