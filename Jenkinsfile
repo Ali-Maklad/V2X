@@ -7,7 +7,6 @@ pipeline {
         DOCKER_USER = "mahmoud1122ashraf"
         IMAGE_NAME = "${DOCKER_USER}/${APP_NAME}"
         IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
-
         DOCKER_CREDENTIALS = credentials("dockerhub-credential") 
         SONAR_TOKEN = credentials('sonar-credential')
         STATIC_ANALYSIS_TYPE = '0'  
@@ -53,11 +52,10 @@ pipeline {
                 expression { STATIC_ANALYSIS_TYPE == '0' }
             }
             steps {
-                timeout(time: 10, unit: 'MINUTES') {  // Increased timeout to 10 minutes
+                timeout(time: 10, unit: 'MINUTES') {
                     script {
                         def qg = waitForQualityGate()
                         if (qg.status != 'OK') {
-                            // If Quality Gate fails, mark the build as unstable but don't stop the pipeline
                             currentBuild.result = 'UNSTABLE'
                             echo "Quality Gate failed with status: ${qg.status}"
                         } else {
@@ -71,8 +69,11 @@ pipeline {
         stage("Install Dependencies") {
             steps {
                 script {
-                    sh 'npm install -g npm' 
-                    sh 'npm install'
+                    // Using Docker container with Node.js installed
+                    docker.image('node:18').inside {
+                        sh 'npm install -g npm' 
+                        sh 'npm install'
+                    }
                 }
             }
         }
@@ -80,14 +81,10 @@ pipeline {
         stage("Build Docker Image") {
             steps {
                 script {
-                    try {
-                        docker.withRegistry('https://index.docker.io/v1/', 'dockerhub-credential') {
-                            def docker_image = docker.build("${IMAGE_NAME}:${IMAGE_TAG}", "-f Dockerfile .")
-                            docker_image.push()
-                            docker_image.push('latest')
-                        }
-                    } catch (Exception e) {
-                        error "Docker build or push failed: ${e.message}"
+                    docker.withRegistry('https://index.docker.io/v1/', 'dockerhub-credential') {
+                        def docker_image = docker.build("${IMAGE_NAME}:${IMAGE_TAG}", "-f Dockerfile .")
+                        docker_image.push()
+                        docker_image.push('latest')
                     }
                 }
             }
