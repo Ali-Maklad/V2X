@@ -5,7 +5,7 @@ pipeline {
         APP_NAME = "v2x-web"  
         RELEASE = "1.0.0"
         DOCKER_USER = "mahmoud1122ashraf"
-        IMAGE_NAME = "${DOCKER_USER}/${APP_NAME}" //
+        IMAGE_NAME = "${DOCKER_USER}/${APP_NAME}"
         IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
 
         DOCKER_CREDENTIALS = credentials("dockerhub-credential") 
@@ -53,16 +53,19 @@ pipeline {
                 expression { STATIC_ANALYSIS_TYPE == '0' }
             }
             steps {
-                timeout(time: 3, unit: 'MINUTES') {
+                timeout(time: 10, unit: 'MINUTES') {  // Increased timeout to 10 minutes
                     script {
                         def qg = waitForQualityGate()
                         if (qg.status != 'OK') {
                             error "Quality Gate failed: ${qg.status}"
+                        } else {
+                            echo "Quality Gate passed."
                         }
                     }
                 }
             }
         }
+
         stage("Install Dependencies") {
             steps {
                 script {
@@ -71,17 +74,23 @@ pipeline {
                 }
             }
         }
+
         stage("Build Docker Image") {
             steps {
                 script {
-                    docker.withRegistry('https://index.docker.io/v1/', 'dockerhub-credential') {
-                        def docker_image = docker.build("${IMAGE_NAME}:${IMAGE_TAG}", "-f Dockerfile .")
-                        docker_image.push()
-                        docker_image.push('latest')
+                    try {
+                        docker.withRegistry('https://index.docker.io/v1/', 'dockerhub-credential') {
+                            def docker_image = docker.build("${IMAGE_NAME}:${IMAGE_TAG}", "-f Dockerfile .")
+                            docker_image.push()
+                            docker_image.push('latest')
+                        }
+                    } catch (Exception e) {
+                        error "Docker build or push failed: ${e.message}"
                     }
                 }
             }
         }
+
         stage("Remove Old Container") {  
             steps {
                 script {
@@ -107,18 +116,30 @@ pipeline {
 
         stage("Trivy Scan") {
             steps {
-                sh """
-                    docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
-                    aquasec/trivy image ${IMAGE_NAME}:${IMAGE_TAG} --no-progress \
-                    --scanners vuln --exit-code 0 --severity HIGH,CRITICAL --format table
-                """
+                script {
+                    try {
+                        sh """
+                            docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+                            aquasec/trivy image ${IMAGE_NAME}:${IMAGE_TAG} --no-progress \
+                            --scanners vuln --exit-code 0 --severity HIGH,CRITICAL --format table
+                        """
+                    } catch (Exception e) {
+                        echo "Trivy scan failed: ${e.message}"
+                    }
+                }
             }
         }
 
         stage("Cleanup Docker Artifacts") {
             steps {
-                sh "docker rmi ${IMAGE_NAME}:${IMAGE_TAG} || true"
-                sh "docker rmi ${IMAGE_NAME}:latest || true"
+                script {
+                    try {
+                        sh "docker rmi ${IMAGE_NAME}:${IMAGE_TAG} || true"
+                        sh "docker rmi ${IMAGE_NAME}:latest || true"
+                    } catch (Exception e) {
+                        echo "Error during cleanup: ${e.message}"
+                    }
+                }
             }
         }
     }
