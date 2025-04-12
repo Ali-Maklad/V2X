@@ -1,37 +1,68 @@
 pipeline {
-    agent { label 'update-app' }
-
-    tools {
-        jdk 'java17'
-        nodejs 'nodejs-18'
-        maven 'maven3'
-    }
+    agent { label 'OTA-Update' }
 
     environment {
-        APP_NAME = "v2x"
+        APP_NAME = "v2x-web"  
         RELEASE = "1.0.0"
         DOCKER_USER = "mahmoud1122ashraf"
-        SONARQUBE_URL = 'http://172.178.140.193:9000'
-        SONARQUBE_TOKEN = credentials('jenkins-token-sonarqube') 
-        DOCKER_CREDENTIALS = credentials("dockerhub-credentials")
-        IMAGE_NAME = "${DOCKER_USER}/${APP_NAME}"
+        IMAGE_NAME = "${DOCKER_USER}/${APP_NAME}" //
         IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
-        CONTAINER_NAME = "${APP_NAME}-container"  
+
+        DOCKER_CREDENTIALS = credentials("dockerhub-credential") 
+        SONAR_TOKEN = credentials('sonar-credential')
+        STATIC_ANALYSIS_TYPE = '0'  
+        SONAR_PROJECT_KEY = 'APP'
+        SONAR_PROJECT_NAME = 'APP'
+        SONAR_PROJECT_VERSION = '1.0'
+        SONAR_INSTANCE_IP = '20.218.137.173'
+        SCANNER_HOME = tool 'sonar-scanner'
     }
 
     stages {
-        stage("Cleanup Workspace") {
+        stage("Checkout from SCM") {
             steps {
-                cleanWs()
+                git branch: 'main', credentialsId: 'web-github', url: 'https://github.com/Ali-Maklad/V2X.git'
             }
         }
 
-        stage("Git Checkout") {
+        stage('SonarQube Analysis') {
+            when {
+                expression { STATIC_ANALYSIS_TYPE == '0' }
+            }
             steps {
-                git branch: 'main', credentialsId: 'app-map', url: 'https://github.com/Ali-Maklad/V2X.git'
+                script {
+                    withSonarQubeEnv('sonarqube') {
+                        echo 'Start SonarQube analysis'
+                        sh """
+                            ${SCANNER_HOME}/bin/sonar-scanner \
+                            -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
+                            -Dsonar.projectName=${SONAR_PROJECT_NAME} \
+                            -Dsonar.projectVersion=${SONAR_PROJECT_VERSION} \
+                            -Dsonar.sources=. \
+                            -Dsonar.token=${SONAR_TOKEN} \
+                            -Dsonar.exclusions=**/node_modules
+                        """
+                        echo 'End SonarQube analysis'
+                    }
+                }
             }
         }
 
+        stage('Quality Gate') {
+            when {
+                expression { STATIC_ANALYSIS_TYPE == '0' }
+            }
+            steps {
+                timeout(time: 3, unit: 'MINUTES') {
+                    script {
+                        def qg = waitForQualityGate()
+                        if (qg.status != 'OK') {
+                            error "Quality Gate failed: ${qg.status}"
+                        }
+                    }
+                }
+            }
+        }
         stage("Install Dependencies") {
             steps {
                 script {
@@ -40,20 +71,10 @@ pipeline {
                 }
             }
         }
-
-        stage("SonarQube Analysis") {
-            steps {
-                script {
-                    withSonarQubeEnv(credentialsId: 'jenkins-token-sonarqube') {
-                        sh 'mvn clean verify sonar:sonar -Dsonar.projectKey=emqx-container -Dsonar.exclusions=**/node_modules  -Dsonar.sources=.  -Dsonar.host.url=http://172.178.140.193:9000'
-                    }
-                }
-            }
-        }    
         stage("Build Docker Image") {
             steps {
                 script {
-                    docker.withRegistry('https://index.docker.io/v1/', 'dockerhub-credentials') {
+                    docker.withRegistry('https://index.docker.io/v1/', 'dockerhub-credential') {
                         def docker_image = docker.build("${IMAGE_NAME}:${IMAGE_TAG}", "-f Dockerfile .")
                         docker_image.push()
                         docker_image.push('latest')
@@ -61,7 +82,6 @@ pipeline {
                 }
             }
         }
-
         stage("Remove Old Container") {  
             steps {
                 script {
@@ -87,22 +107,18 @@ pipeline {
 
         stage("Trivy Scan") {
             steps {
-                script {
-                    sh '''
+                sh """
                     docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
                     aquasec/trivy image ${IMAGE_NAME}:${IMAGE_TAG} --no-progress \
                     --scanners vuln --exit-code 0 --severity HIGH,CRITICAL --format table
-                    '''
-                }
+                """
             }
         }
 
         stage("Cleanup Docker Artifacts") {
             steps {
-                script {
-                    sh "docker rmi ${IMAGE_NAME}:${IMAGE_TAG} || true"
-                    sh "docker rmi ${IMAGE_NAME}:latest || true"
-                }
+                sh "docker rmi ${IMAGE_NAME}:${IMAGE_TAG} || true"
+                sh "docker rmi ${IMAGE_NAME}:latest || true"
             }
         }
     }
@@ -114,19 +130,20 @@ pipeline {
                 color: 'danger',
                 message: "Build failed: ${currentBuild.fullDisplayName}"
             )
-            emailext (
+            emailext(
                 subject: "Jenkins Build Failed: ${currentBuild.fullDisplayName}",
                 body: "The build failed. Please check the Jenkins console for details.",
                 recipientProviders: [[$class: 'DevelopersRecipientProvider']]
             )
         }
+
         success {
             slackSend(
                 channel: '#v2x_',
                 color: 'good',
                 message: "Build successful: ${currentBuild.fullDisplayName}"
             )
-            emailext (
+            emailext(
                 subject: "Jenkins Build Successful: ${currentBuild.fullDisplayName}",
                 body: "The build was successful. It's ready for deployment.",
                 recipientProviders: [[$class: 'DevelopersRecipientProvider']]
