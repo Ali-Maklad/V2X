@@ -1,5 +1,5 @@
 pipeline {
-    agent { label 'web' }
+    agent { label 'update-app' }
 
     tools {
         jdk 'java17'
