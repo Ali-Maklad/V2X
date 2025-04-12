@@ -15,7 +15,7 @@ pipeline {
         SONAR_PROJECT_VERSION = '1.0'
         SONAR_INSTANCE_IP = '20.218.137.173'
         SCANNER_HOME = tool 'sonar-scanner'
-        CONTAINER_NAME = "${APP_NAME}-container
+        CONTAINER_NAME = "${APP_NAME}-container"
     }
 
     stages {
