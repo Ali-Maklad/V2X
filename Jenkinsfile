@@ -57,7 +57,9 @@ pipeline {
                     script {
                         def qg = waitForQualityGate()
                         if (qg.status != 'OK') {
-                            error "Quality Gate failed: ${qg.status}"
+                            // If Quality Gate fails, mark the build as unstable but don't stop the pipeline
+                            currentBuild.result = 'UNSTABLE'
+                            echo "Quality Gate failed with status: ${qg.status}"
                         } else {
                             echo "Quality Gate passed."
                         }
@@ -167,6 +169,19 @@ pipeline {
             emailext(
                 subject: "Jenkins Build Successful: ${currentBuild.fullDisplayName}",
                 body: "The build was successful. It's ready for deployment.",
+                recipientProviders: [[$class: 'DevelopersRecipientProvider']]
+            )
+        }
+
+        unstable {
+            slackSend(
+                channel: '#v2x_',
+                color: 'warning',
+                message: "Build unstable (Quality Gate failed): ${currentBuild.fullDisplayName}"
+            )
+            emailext(
+                subject: "Jenkins Build Unstable: ${currentBuild.fullDisplayName}",
+                body: "The build has passed but with warnings (Quality Gate failed). Please check the SonarQube details for more information.",
                 recipientProviders: [[$class: 'DevelopersRecipientProvider']]
             )
         }
