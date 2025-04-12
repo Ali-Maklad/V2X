@@ -28,7 +28,7 @@ pipeline {
 
         stage("Git Checkout") {
             steps {
-                git branch: 'main', credentialsId: 'web_credentials_github', url: 'https://github.com/Ali-Maklad/V2X.git'
+                git branch: 'main', credentialsId: 'app-map', url: 'https://github.com/Ali-Maklad/V2X.git'
             }
         }
 
