@@ -1,5 +1,5 @@
 pipeline {
-    agent { label 'OTA-Update' }
+    agent { label 'EMQX' }
 
     environment {
         APP_NAME = "v2x-web"  
