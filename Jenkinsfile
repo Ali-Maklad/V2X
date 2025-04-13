@@ -10,8 +10,8 @@ pipeline {
         DOCKER_CREDENTIALS = credentials("dockerhub-credential") 
         SONAR_TOKEN = credentials('sonar-credential')
         STATIC_ANALYSIS_TYPE = '0'  
-        SONAR_PROJECT_KEY = 'APP'
-        SONAR_PROJECT_NAME = 'APP'
+        SONAR_PROJECT_KEY = 'web-v2x'
+        SONAR_PROJECT_NAME = 'web-v2x'
         SONAR_PROJECT_VERSION = '1.0'
         SONAR_INSTANCE_IP = '20.218.137.173'
         SCANNER_HOME = tool 'sonar-scanner'
