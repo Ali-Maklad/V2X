@@ -53,20 +53,16 @@ pipeline {
                 expression { STATIC_ANALYSIS_TYPE == '0' }
             }
             steps {
-                timeout(time: 10, unit: 'MINUTES') {
+                timeout(time: 3, unit: 'MINUTES') {
                     script {
                         def qg = waitForQualityGate()
                         if (qg.status != 'OK') {
-                            currentBuild.result = 'UNSTABLE'
-                            echo "Quality Gate failed with status: ${qg.status}"
-                        } else {
-                            echo "Quality Gate passed."
+                            error "Quality Gate failed: ${qg.status}"
                         }
                     }
                 }
             }
         }
-
         stage("Install Dependencies") {
             steps {
                 script {
