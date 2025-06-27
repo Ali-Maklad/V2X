@@ -1,6 +1,6 @@
 // simulation.js
 
-const socket = io(window.location.origin);
+const socket = io(https://vehicle2x.site/);
 const mapboxToken = "pk.eyJ1IjoibWFyaWlhbW0iLCJhIjoiY2xwYmE2bWVoMGhwczJrcXIxNzlvaTgyaiJ9.rDjlQgOMAzkppYwBVeUG2Q";
 
 // Your car's route
