@@ -1,5 +1,5 @@
 pipeline {
-    agent { label 'EMQX' }
+    agent { label 'WEB' }
 
     environment {
         APP_NAME = "v2x-web"  
