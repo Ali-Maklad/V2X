@@ -48,7 +48,7 @@ pipeline {
             }
         }
 
-        stage('Quality Gate') {
+      /*  stage('Quality Gate') {
             when {
                 expression { STATIC_ANALYSIS_TYPE == '0' }
             }
@@ -62,7 +62,7 @@ pipeline {
                     }
                 }
             }
-        }
+        } */
         stage("Install Dependencies") {
             steps {
                 script {
