@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 <!-- <!DOCTYPE html>
+=======
+<!DOCTYPE html>
+>>>>>>> bc966a8f (Recent Updates)
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -33,6 +37,16 @@
       #high-speed {
         background-color: #007bff;
       }
+<<<<<<< HEAD
+=======
+      #sudden-brake {
+        background-color: #0d1300;
+      }
+
+      #intersection {
+        background-color: #393a5a;
+      }
+>>>>>>> bc966a8f (Recent Updates)
 
       #high-speed:hover {
         background-color: #0056b3;
@@ -61,11 +75,21 @@
       <button id="start" onclick="emitLocation()">Start</button>
       <button id="high-speed" onclick="emitHighSpeed()">High Speed</button>
       <button id="accident" onclick="emitAccident()">Accident</button>
+<<<<<<< HEAD
+=======
+      <button id="sudden-brake" onclick="emitSuppenBrake()">
+        Sudden Brake
+      </button>
+      <button id="intersection" onclick="emitIntersection()">
+        Intersection
+      </button>
+>>>>>>> bc966a8f (Recent Updates)
     </div>
 
     <script>
       // Connect to the Socket.IO server
       const socket = io(window.location.origin); // Replace with your server's URL and port
+<<<<<<< HEAD
 
       function emitLocation() {
         let location = { lat: 30.441392, lon: 31.342281 };
@@ -76,6 +100,27 @@
           socket.emit("myLocation", location);
         }, 500);
         // Emit 'highSpeed' event
+=======
+      let payload = {
+        lat : 30.441392,
+        lon : 31.342281,
+        intersection : false,
+        accident: false
+      }
+      let payload2 = {
+        lat : 30.443392,
+        lon : 31.347281,
+        intersection : true,
+        accident: false
+      }
+
+      function emitLocation() {
+        setInterval(() => {
+          payload.lat += 0.0001;
+          payload.lon += 0.0001;
+          socket.emit("userPayload", payload);
+        }, 500);
+>>>>>>> bc966a8f (Recent Updates)
       }
 
       function emitHighSpeed() {
@@ -87,10 +132,28 @@
       function emitAccident() {
         const accidentLocation = { lat: 30.481382, lon: 31.352271 };
         const message = "Watchout! there's an accident nearby";
+<<<<<<< HEAD
         socket.emit("accident", message, accidentLocation);
+=======
+        socket.emit("accident", accidentLocation);
+      }
+
+      function emitIntersection() {
+
+        const message = "Watchout! There's a car intersection!";
+        setInterval(() => {
+          payload2.lon -= 0.0001;
+  
+          socket.emit("userPayload", payload2);
+        }, 500);
+>>>>>>> bc966a8f (Recent Updates)
       }
 
       // Handle successful connection
     </script>
   </body>
+<<<<<<< HEAD
 </html> -->
+=======
+</html>
+>>>>>>> bc966a8f (Recent Updates)

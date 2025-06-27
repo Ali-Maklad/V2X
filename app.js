@@ -5,8 +5,12 @@ const server = http.createServer(app);
 const { Server } = require("socket.io");
 const io = new Server(server);
 const PORT = process.env.PORT || 3000;
+<<<<<<< HEAD
 const mqttHandler = require("./mqtthandler.js");
 mqttHandler();
+=======
+
+>>>>>>> bc966a8f (Recent Updates)
 
 app.use(express.static(__dirname + "/Public"));
 app.get("/", (req, res) => {
@@ -24,6 +28,7 @@ io.on("connection", (socket) => {
   const userId = counter++;
   io.emit("connection", userId);
   console.log(`User ${userId} Connected`);
+<<<<<<< HEAD
   
   socket.on("Test", (testMessage) => {
     console.log(testMessage);
@@ -42,11 +47,39 @@ io.on("connection", (socket) => {
   socket.on("accident", (message, accidentLocation) => {
     console.log("Accident Alert from app.js:", accidentLocation);
     io.emit("sendAccidentAlert", message, accidentLocation);
+=======
+
+  socket.on("userPayload", (Payload) => {
+    
+    if (Payload.intersection == false && Payload.accident == false){
+    console.log(Payload);
+
+    io.emit("sendUserLocation", Payload);
+    }
+    else if (Payload.intersection == true && Payload.accident == false) {
+      console.log("Intersection Alert from app.js:", Payload);
+    io.emit("intersectionDetected",  Payload);
+    }
+  });
+
+  socket.on("accident", (accidentLocation) => {
+    console.log("Accident Alert from app.js:", accidentLocation);
+    io.emit("accidentDetected",  accidentLocation);
+    
+>>>>>>> bc966a8f (Recent Updates)
   });
 
   socket.on("highSpeed", (msg) => {
     io.emit("sendHighSpeedAlert", msg);
   });
+<<<<<<< HEAD
+=======
+
+  socket.on("intersection", (car2Location) => {
+    console.log("Intersection Alert from app.js:", car2Location);
+    io.emit("intersectionDetected",  car2Location);
+  });
+>>>>>>> bc966a8f (Recent Updates)
 });
 
 server.listen(PORT, () => {
