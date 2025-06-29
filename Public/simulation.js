@@ -1,6 +1,6 @@
 // simulation.js
 
-const socket = io("http://4.232.176.214:3000/");
+const socket = io("http://4.232.176.214:3000/#");
 const mapboxToken = "pk.eyJ1IjoibWFyaWlhbW0iLCJhIjoiY2xwYmE2bWVoMGhwczJrcXIxNzlvaTgyaiJ9.rDjlQgOMAzkppYwBVeUG2Q";
 
 // Your car's route
