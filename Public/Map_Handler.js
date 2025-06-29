@@ -1,4 +1,4 @@
-const socketio = io("http://vehicle2x.site:3000/"); // Replace with your server URL
+const socketio = io("http://4.232.176.214:3000/"); // Replace with your server URL
 
 mapboxgl.accessToken = "pk.eyJ1IjoibWFyaWlhbW0iLCJhIjoiY2xwYmE2bWVoMGhwczJrcXIxNzlvaTgyaiJ9.rDjlQgOMAzkppYwBVeUG2Q";
 
