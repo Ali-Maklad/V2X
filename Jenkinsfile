@@ -1,5 +1,5 @@
 pipeline {
-    agent { label 'WEB' }
+    agent { label 'OTA-Update' }
 
     environment {
         APP_NAME = "v2x-web"  
