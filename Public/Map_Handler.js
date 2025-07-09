@@ -1,4 +1,4 @@
-const socketio = io("http://74.161.160.117:3000/"); // Replace with your server URL
+const socketio = io("http://localhost:3000/"); // Replace with your server URL
 
 mapboxgl.accessToken = "pk.eyJ1IjoibWFyaWlhbW0iLCJhIjoiY2xwYmE2bWVoMGhwczJrcXIxNzlvaTgyaiJ9.rDjlQgOMAzkppYwBVeUG2Q";
 
@@ -126,17 +126,51 @@ function getOrCreateCarMarker(carID, lng, lat) {
 
 ///////////////////////////////////////// Event Listening section //////////////////////////////////////////
 
-// My own location updating
+let skipNextAnimation = false;
+
+function removeAllRedAndAccidentMarkers() {
+  // Remove all markers except the main car (Ali)
+  for (let i = marker_array.length - 1; i >= 0; i--) {
+    if (marker_array[i].id !== mymarkerId) {
+      marker_array[i].marker.remove();
+      marker_array.splice(i, 1);
+    }
+  }
+  // Remove all accident markers
+  for (let i = accidentMarkers.length - 1; i >= 0; i--) {
+    accidentMarkers[i].marker.remove();
+    accidentMarkers.splice(i, 1);
+  }
+  // Remove intersection marker if present
+  if (intersectionMarker) {
+    intersectionMarker.remove();
+    intersectionMarker = null;
+  }
+  // Reset all warning flags when loop restarts
+  suddenBrakeWarningShown = false;
+  accidentWarningShown = false;
+  intersectionWarningShown = false;
+}
+
 socketio.on("sendUserLocation", (currentLocation) => {
   const marker = marker_array[0].marker;
   const from = marker.getLngLat();
   const to = [currentLocation.lon, currentLocation.lat];
-  animateMarker(marker, [from.lng, from.lat], to, 5000);
-  console.log(currentLocation); // 5 second animation
-
-  // Show sudden brake message if this is the last coordinate
-  if (window.lastCoordinate && currentLocation.lat === window.lastCoordinate.lat && currentLocation.lon === window.lastCoordinate.lon) {
-    addWarningMessage("Sudden brake detected");
+  if (skipNextAnimation) {
+    // Instantly set marker on the first point of the new loop
+    removeAllRedAndAccidentMarkers();
+    marker.setLngLat(to);
+    map.setCenter(to);
+    skipNextAnimation = false;
+    console.log("First point after loop: instant jump and markers cleared");
+  } else {
+    animateMarker(marker, [from.lng, from.lat], to, 5000);
+    console.log(currentLocation); // 5 second animation
+    // REMOVED: The sudden brake warning from here - it was causing duplicate warnings
+    // Only set the skipNextAnimation flag when it's the last point
+    if (currentLocation.isLast) {
+      skipNextAnimation = true;
+    }
   }
 });
 
@@ -188,8 +222,14 @@ socketio.on("removemarker", (other_payload) => {
 socketio.on("suddenbreak", (intersection_carArray) => {
   marker_type = "red_marker";
   intersection_carArray.forEach((other_car_payload) => {
-    putOrUpdateMap(other_car_payload, marker_type);
+    // Create sudden brake marker with a unique ID to avoid conflicts
+    const suddenBrakePayload = {
+      ...other_car_payload,
+      carID: other_car_payload.carID + "_suddenbrake" // Make ID unique
+    };
+    putOrUpdateMap(suddenBrakePayload, marker_type);
   });
+  // Only show the warning here - this is the correct place for sudden brake detection
   if (!suddenBrakeWarningShown) {
     addWarningMessage("Sudden brake detected");
     suddenBrakeWarningShown = true;
@@ -271,7 +311,7 @@ function addWarningMessage(message) {
 ///////////////////////////////////////// End of code ///////////////////////////////////////////
 
 // At the end of the file, set the last coordinate for reference
-fetch('/10th-Data - Copy.txt')
+fetch('Public/10th-Data - Copy.txt')
   .then(response => response.text())
   .then(text => {
     const lines = text.trim().split('\n');

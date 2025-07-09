@@ -7,8 +7,19 @@ const io = new Server(server);
 const PORT = process.env.PORT || 3000;
 const mqttHandler = require("./mqtthandler.js");
 const fs = require("fs");
+const runSimulation = require("./Public/simulation.js");
+const { default: mqtt } = require("mqtt");
 
 mqttHandler();
+
+function loopSimulation() {
+  runSimulation(() => {
+    setTimeout(loopSimulation, 2000); // 2 seconds delay between runs
+  });
+}
+
+loopSimulation();
+console.log("Simulation running");
 
 app.use("/Public", express.static(__dirname + "/Public"));
 app.get("/", (req, res) => {
@@ -24,7 +35,7 @@ let counter = 1;
 io.on("connection", (socket) => {
   const userId = counter++;
   io.emit("connection", userId);
-  console.log(`User ${userId} Connected`);
+  console.log('User ${userId} Connected');
 
   socket.on("userPayload", (Payload) => {
     if (Payload.intersection == false && Payload.accident == false) {
@@ -58,5 +69,5 @@ socket.on("suddenbreak", (carArray) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  console.log("Server is running on port ${PORT}");
 });
