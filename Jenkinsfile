@@ -81,7 +81,7 @@ pipeline {
                     docker.withRegistry('https://index.docker.io/v1/', 'dockerhub-credential') {
                         def docker_image = docker.build("${IMAGE_NAME}:${IMAGE_TAG}", "-f Dockerfile .")
                         docker_image.push()
-                        //docker_image.push('latest'
+                        //docker_image.push('latest')
                     }
                 }
             }
