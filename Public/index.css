@@ -1,0 +1,294 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap");
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "poppins", sans-serif;
+}
+
+body {
+  background: #081b29;
+  color: #ededed;
+}
+
+header {
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 10px;
+  height: 10vh;
+  background: transparent;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  font-size: 20px; /* تم تقليص الحجم ليكون مناسبًا أكثر للأجهزة المحمولة */
+  color: #ededed;
+  text-decoration: none;
+  white-space: nowrap;
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  font-weight: 600;
+  margin-left: 4%;
+  width: 20%;
+}
+
+.logo p {
+  padding-left: 30px;
+  font-size: 18px; /* تم تقليص حجم النص هنا أيضًا */
+}
+
+.navbar {
+  width: 45%;
+  display: flex;
+  justify-content: center;
+  gap: 5%;
+}
+
+.navbar a {
+  font-size: 16px; /* تقليص حجم النص لتناسب الشاشات الصغيرة */
+  color: #fff;
+  text-decoration: none;
+  font-weight: 550;
+  transition: 0.3s;
+}
+
+.navbar a.active {
+  margin-left: 180px;
+}
+
+.navbar a:hover {
+  color: #00abf0;
+}
+
+#emergencyLink {
+  margin-left: 250px;
+}
+
+#emergencyLink:hover {
+  color: #ff0000;
+}
+
+#container {
+  display: flex;
+  height: 80vh;
+  padding-top: 2px;
+  border-radius: 50px;
+  flex-wrap: wrap; /* سيجعل الحاويات تتكدس في حالة الشاشات الصغيرة */
+}
+
+#left-container {
+  flex: 1;
+  padding: 10px;
+  overflow: auto;
+  border-radius: 50px;
+  margin-right: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+#left-container.hidden {
+  display: none;
+}
+
+#left-container h2 {
+  background-color: #424040;
+  color: #fff;
+  padding: 7px;
+  border-radius: 20px;
+  text-align: center;
+  margin-bottom: 15px;
+  font-size: 22px;
+}
+
+.message-container {
+  margin-bottom: 15px;
+}
+
+.message {
+  padding: 10px;
+  border-radius: 15px;
+  word-wrap: break-word;
+}
+
+.warning-message {
+  background-color: #424040;
+  color: #fff;
+}
+
+.info-message {
+  background-color: #5bc0de;
+  color: #fff;
+}
+
+.message.warning-message + .message.warning-message {
+  margin-top: 10px;
+}
+
+#map-container {
+  flex: 2;
+  margin-right: 20px;
+  border-radius: 50px;
+  overflow: auto;
+  background-color: #e6e6e6;
+  height: 100%;
+}
+
+#map-container.fullscreen {
+  flex: 1;
+  width: 100%;
+}
+
+#map {
+  height: 100%;
+  width: 100%;
+}
+
+.btn-box {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-left: 587px;
+  width: 60%;
+  height: 50px;
+  gap: 40px;
+}
+
+.btn-box button {
+  position: relative;
+  top: 10px;
+  right: 30px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  text-decoration: none;
+  width: 35%;
+  height: 100%;
+  background: #424040;
+  border: 2px solid #424040;
+  border-radius: 8px;
+  font-size: 18px;
+  color: #fff;
+  font-weight: 600;
+  letter-spacing: 1px;
+  z-index: 1;
+  overflow: hidden;
+  transition: 0.5s;
+}
+
+.btn-box button:hover {
+  color: #00abf0;
+}
+
+#recenterButton {
+  width: 20%;
+}
+
+#zoomInButton {
+  width: 20%;
+}
+
+#zoomOutButton {
+  width: 20%;
+}
+
+.emergency-numbers {
+  margin-top: 50px;
+  background-color: #424040;
+  color: #ffffff;
+  padding: 7px;
+  border-radius: 20px;
+  text-align: center;
+  margin-bottom: 15px;
+  font-size: 22px;
+  display: none;
+}
+
+.emergency-numbers ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.emergency-numbers li {
+  margin-bottom: 10px;
+}
+
+.emergency-numbers h3 {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+/* تحسين التنسيق للموبايلات */
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    width: 100%;
+    align-items: center;
+  }
+
+  .navbar a {
+    font-size: 14px;
+    margin: 5px 0;
+  }
+
+  .logo p {
+    font-size: 20px;
+  }
+
+  #container {
+    flex-direction: column;
+    height: auto;
+  }
+
+  #left-container {
+    flex: 1;
+    margin-right: 0;
+  }
+
+  .btn-box {
+    flex-direction: column;
+    margin-left: 0;
+    width: 100%;
+    gap: 10px;
+  }
+
+  .btn-box button {
+    width: 100%;
+  }
+
+  .message {
+    font-size: 14px;
+  }
+
+  #map-container {
+    flex: 1;
+    margin-right: 0;
+    margin-top: 20px;
+  }
+
+  .emergency-numbers {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .logo p {
+    font-size: 18px;
+  }
+
+  .navbar a {
+    font-size: 12px;
+  }
+
+  .btn-box button {
+    font-size: 14px;
+  }
+
+  .emergency-numbers {
+    font-size: 16px;
+  }
+}

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Realtime Location Tracker</title>
+
+    <!-- Mapbox CSS -->
+    <link href='https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.css' rel='stylesheet' />
+
+    <link rel="stylesheet" href="Public/index.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    
+    <style>
+        /* Add this style to create space between warning messages */
+        .message.warning-message + .message.warning-message {
+            margin-top: 10px; /* Adjust the margin as needed */
+        }
+
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <a href="#" class="logo">
+            <img src="./Public/car_9578435.png" alt="Description of the image" width="60" height="60">
+            <p>avoid collision project</p>
+        </a>
+        <nav class="navbar">
+            <a href="#" class="active">Map</a>
+            <a href="#" id="emergencyLink">Call Emergency</a>
+        </nav>
+    </header>
+
+    <div id="container">
+        <div id="left-container">
+            <h2>Warning Messages</h2>
+            <div id="message-container"></div>
+            
+            <!-- قسم أرقام الطوارئ -->
+            <div class="emergency-numbers" id="emergencyNumbers">
+                <h3>أرقام الطوارئ</h3>
+                <ul>
+                    <li>الإسعاف: 123</li>
+                    <li>شرطة الطوارئ: 122</li>
+                    <li>حوادث الطرق: 136</li>
+                    <li>المطافي: 180</li>
+                </ul>
+            </div>
+        </div>
+        <div id="map-container">
+            <div id="map"></div>
+        </div>
+    </div>
+    
+    <div class="btn-box">
+        <button id="toggleButton">show map full screen</button>
+        <button id="zoomInButton">Zoom In</button>
+        <button id="zoomOutButton">Zoom Out</button>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.3/socket.io.js"></script>
+    <!-- Mapbox JS -->
+    <script src='https://api.mapbox.com/mapbox-gl-js/v2.7.0/mapbox-gl.js'></script>
+
+    <script src="Public/Map_Handler.js"></script>
+    <script src="Public/bottom_button_handler.js"></script>
+
+    <script>
+        // الحصول على الزر وقسم الأرقام
+        var emergencyLink = document.getElementById("emergencyLink");
+        var emergencyNumbers = document.getElementById("emergencyNumbers");
+
+        // عند الضغط على الزر، إظهار الأرقام
+        emergencyLink.onclick = function() {
+            if (emergencyNumbers.style.display === "none" || emergencyNumbers.style.display === "") {
+                emergencyNumbers.style.display = "block";  // إظهار الأرقام
+            } else {
+                emergencyNumbers.style.display = "none";  // إخفاء الأرقام
+            }
+        }
+    </script>
+</body>
+
+</html>
