@@ -311,7 +311,7 @@ function addWarningMessage(message) {
 ///////////////////////////////////////// End of code ///////////////////////////////////////////
 
 // At the end of the file, set the last coordinate for reference
-fetch('Public/10th-Data - Copy.txt')
+fetch('/v2xData/workspace/WEB/Public/10th-Data - Copy.txt')
   .then(response => response.text())
   .then(text => {
     const lines = text.trim().split('\n');
