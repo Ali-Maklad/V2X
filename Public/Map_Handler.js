@@ -318,4 +318,7 @@ fetch('Public/10th-Data - Copy.txt')
     const lastLine = lines[lines.length - 1];
     const [lat, lon] = lastLine.split(',').map(Number);
     window.lastCoordinate = { lat, lon };
+  })
+  .catch(error => {
+    console.error('Error fetching coordinates file:', error);
   });
