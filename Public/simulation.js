@@ -3,7 +3,7 @@ const path = require("path");
 
 function runSimulation(onComplete) {
   const { io } = require("socket.io-client");
-  const socket = io("https://vehicle2x.site/v2xData/workspace/WEB/"); // Create a new socket for each run
+  const socket = io("http://vehicle2x.site:3000/"); // Create a new socket for each run
 
   // Accident 1 (original case)
   const accident1 = { lat: 30.363138, lon: 31.587069, accident_id: "accident1" };

@@ -2,7 +2,7 @@ const mqtt = require("mqtt");
 const connectUrl = "mqtt://135.220.160.216";
 const clientId = "AliMaklad";
 const { io } = require("socket.io-client");
-const socket = io("https://vehicle2x.site/v2xData/workspace/WEB/");
+const socket = io("http://vehicle2x.site:3000/");
 
 let isConnected = false;
 
